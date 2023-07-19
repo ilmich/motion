@@ -270,8 +270,7 @@ void webu_write(struct webui_ctx *webui, const char *buf)
     return;
 }
 
-static void webu_parms_edit(struct webui_ctx *webui)
-{
+static void webu_parms_edit(struct webui_ctx *webui) {
 
     /* Determine the thread number provided.
      * If no thread provided, assign it to -1
@@ -1421,10 +1420,14 @@ static void webu_answer_strm_type(struct webui_ctx *webui)
 
 }
 
-static mymhd_retcd webu_answer_ctrl(void *cls, struct MHD_Connection *connection
-            , const char *url, const char *method, const char *version
-            , const char *upload_data, size_t *upload_data_size, void **ptr)
-{
+static mymhd_retcd webu_answer_ctrl(void *cls
+        , struct MHD_Connection *connection
+        , const char *url
+        , const char *method
+        , const char *version
+        , const char *upload_data
+        , size_t     *upload_data_size
+        , void **ptr) {
 
     /* This function "answers" the request for a webcontrol.*/
     mymhd_retcd retcd;
@@ -1503,10 +1506,14 @@ static mymhd_retcd webu_answer_ctrl(void *cls, struct MHD_Connection *connection
 
 }
 
-static mymhd_retcd webu_answer_strm(void *cls, struct MHD_Connection *connection
-            , const char *url, const char *method, const char *version
-            , const char *upload_data, size_t *upload_data_size, void **ptr)
-{
+static mymhd_retcd webu_answer_strm(void *cls
+        , struct MHD_Connection *connection
+        , const char *url
+        , const char *method
+        , const char *version
+        , const char *upload_data
+        , size_t     *upload_data_size
+        , void **ptr) {
 
     /* Answer the request for all the streams*/
     mymhd_retcd retcd;

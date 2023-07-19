@@ -38,6 +38,9 @@
     #include <webp/mux.h>
 #endif /* HAVE_WEBP */
 
+#if defined(__ARM_NEON)
+#include <arm_neon.h>
+#endif
 
 /* EXIF image data is always in TIFF format, even if embedded in another
  * file type. This consists of a constant header (TIFF file header,
@@ -1019,6 +1022,41 @@ void put_fixed_mask(struct context *cnt, const char *file)
 void pic_scale_img(int width_src, int height_src, unsigned char *img_src, unsigned char *img_dst)
 {
 
+#if defined(__ARM_NEON)
+
+    int x, y;
+    unsigned char *out = img_dst;
+    unsigned char *uv = &img_src[width_src * height_src];
+    for (y = 0; y < height_src; y += 2)
+    {
+        for (x = 0; x <= width_src - 16; x += 16)
+        {
+            uint8x8x2_t t = vld2_u8(&img_src[y * width_src + x]);
+            uint8x8_t r = vrhadd_u8(t.val[0], t.val[1]);
+            vst1_u8(out, r);
+            out += 8;
+        }
+        for (; x < width_src; x+=2)
+            *out++ = (img_src[y * width_src + x] + img_src[y * width_src + x] + 1) / 2;
+    }
+
+    for (y = 0; y < height_src / 2; y+=2)
+    {
+        for (x = 0; x <= width_src - 16; x += 16)
+        {
+            uint8x8x2_t t = vld2_u8(&uv[(y * width_src) + x]);
+            uint8x8_t r = vrhadd_u8(t.val[0], t.val[1]);
+            vst1_u8(out, r);
+            out += 8;
+        }
+        for (; x < width_src; x += 2)
+        {
+            *out++ = (uv[(y * width_src) + x] + uv[(y * width_src) + (x + 1)] + 1) / 2;
+        }
+    }
+
+#else
+
     int i = 0, x, y;
     for (y = 0; y < height_src; y+=2) {
         for (x = 0; x < width_src; x+=2) {
@@ -1033,6 +1071,8 @@ void pic_scale_img(int width_src, int height_src, unsigned char *img_src, unsign
        }
     }
 
-    return;
+#endif
+
+	return;
 }
 

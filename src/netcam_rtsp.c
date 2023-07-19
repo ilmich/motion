@@ -516,6 +516,7 @@ static int netcam_rtsp_decode_video(struct rtsp_context *rtsp_data)
             av_strerror(retcd, errstr, sizeof(errstr));
             MOTION_LOG(INF, TYPE_NETCAM, NO_ERRNO
                 ,_("Error sending packet to codec: %s"), errstr);
+
             /* This is non fatal for file processing */
             if (mystreq(rtsp_data->service, "file")) {
                 return 0;
@@ -1312,6 +1313,14 @@ static int netcam_rtsp_read_image(struct rtsp_context *rtsp_data)
                 MOTION_LOG(INF, TYPE_NETCAM, NO_ERRNO
                     ,_("%s: av_read_frame: %s")
                     ,rtsp_data->cameratype, errstr);
+
+                if (!strcmp(rtsp_data->service, "file") && !strcmp(errstr, "End of file")) {
+                    MOTION_LOG(ERR, TYPE_NETCAM, NO_ERRNO, "\"%s\" file:// stream detected, process completed, shutdown", errstr);
+                    rtsp_data->finish = TRUE;
+                    rtsp_data->status = RTSP_NOTCONNECTED;
+                    // see why kill is used https://github.com/Motion-Project/motion/issues/1122
+                    kill(getpid(),SIGINT);
+                }
             } else {
                 MOTION_LOG(INF, TYPE_NETCAM, NO_ERRNO
                     ,_("%s: Excessive tries to get data from camera %d")

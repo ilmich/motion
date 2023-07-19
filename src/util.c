@@ -396,6 +396,10 @@ static void mystrftime_long (const struct context *cnt, int width, const char *w
         sprintf(out, "%*s", width, VERSION);
         return;
     }
+    if (SPECIFIERWORD("name")) {
+        sprintf(out, "%*s", width, cnt->conf.camera_name);
+        return;
+    }
     if (SPECIFIERWORD("eventid")) {
         sprintf(out, "%*s", width,  cnt->eventid);
         return;
